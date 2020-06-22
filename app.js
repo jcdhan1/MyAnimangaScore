@@ -19,6 +19,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/bootstrap', express.static(__dirname + '/node_modules/bootstrap/dist')); // redirect bootstrap
+app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
