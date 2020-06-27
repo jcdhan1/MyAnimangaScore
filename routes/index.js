@@ -14,9 +14,9 @@ const oListCaptions = {
 
 /* GET home page. */
 oRouter.get('/', function (oReq, oRes, cNext) {
-    const sUsername = oReq.query.username;
-    // Find
-    if (sUsername) {
+    if (oReq.query.username) {
+        // Find
+        const sUsername = oReq.query.username;
         oMAL.findUser(sUsername, oReq.query.list + 'list', '/').then(oList => {
            let aEntries = oList[oReq.query.list];
             // Render
@@ -28,6 +28,14 @@ oRouter.get('/', function (oReq, oRes, cNext) {
                 aEntries: aEntries
             });
         }).catch(err => console.log(err));
+    } else {
+        oRes.render('index', {
+            sTitle: 'MyAnimangaScore',
+            sUsername: '',
+            sList: '',
+            oListCaptions: oListCaptions,
+            aEntries: null
+        });
     }
 });
 

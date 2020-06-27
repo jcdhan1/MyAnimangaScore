@@ -3,8 +3,14 @@
 	<head>
 		<title><%= sTitle %></title>
 		<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-		<script src="/js/jquery.js"></script>
+		<script src="/jquery/jquery.js"></script>
 		<script src="/bootstrap/js/bootstrap.min.js"></script>
+		<script src="/javascripts/scroller.js"></script>
+		<script>
+            $(document).ready(function() {
+
+            });
+		</script>
 	</head>
 	<body>
 		<main>
@@ -13,73 +19,84 @@
 				<form id="Loader">
 					<div class="form-group">
 						<label for="username">Username</label>
-						<input type="text" class="form-control form-control-sm" id="username" name="username" placeholder="Enter the username"
-						<% if (sUsername) { %>
+						<input type="text" class="form-control form-control-sm" id="username" name="username"
+							   placeholder="Enter the username"
+						<%_ if (sUsername) { _%>
 							   value="<%= sUsername %>"
-								<% } %>
+						<%_ } _%>
+							   required
 						/>
 					</div>
 					<div class="form-group">
 						<label for="list">List</label>
 						<select class="form-control form-control-sm" id="list" name="list" aria-describedby="listHelp">
-							<% for (var sKey in oListCaptions) { %>
-								<option value="<%= sKey %>"
-										<% if (sKey == sList) { _%>
-										selected
-										<%_ } _%>
-								>
-									<%= oListCaptions[sKey] %>
-								</option>
-							<% } %>
+						<%_ for (var sKey in oListCaptions) { _%>
+							<option value="<%= sKey %>"<%=(sKey==sList) ? ' selected' : ''%>>
+								<%= oListCaptions[sKey] %>
+							</option>
+						<%_ } _%>
 						</select>
 						<small id="listHelp" class="form-text text-muted">What do you want to calculate scores for?</small>
 					</div>
-					<button type="submit" class="btn btn-primary">Calculate</button>
+					<button type="submit" class="btn btn-primary">Load</button>
 				</form>
 			</div>
+			<%_ if (aEntries) { _%>
 			<form id="DecisionMatrix">
-				<input type="hidden" id="mal_ids" value="<% aEntries.forEach((oEntry) => { -%>
-							<%= oEntry.mal_id -%>,
-						<% }); -%>"/>
+				<input type="hidden" id="mal_ids" value="<%= aEntries.map(o => o.mal_id).join(',') %>" />
 				<table class="table">
 					<thead>
-					<tr>
-						<th scope="col">Is &darr; better than &rarr;?</th>
-						<%# Create columns and asign initial positions. %>
-						<% let iPos = 0 %>
-						<% aEntries.forEach((oEntry) =>{ %>
-							<% oEntry['position'] = iPos; %>
-							<% iPos++; %>
-							<%- include('templates/colHeader', {oEntry: oEntry}); %>
-						<% }); %>
-						<th scope="col">Total</th>
-						<th scope="col">Score</th>
-						<th scope="col">MAL Score</th>
-					</tr>
+						<tr><%# Create columns and asign initial positions. %>
+							<th scope="col">Is &darr; better than &rarr;?</th>
+						<%_ let iPos = 0; _%>
+						<%_ aEntries.forEach((oEntry) =>{ _%>
+							<%_ oEntry['position'] = iPos; _%>
+							<%_ iPos++; _%>
+							<%- include('templates/thAnimanga', {sScope:'col', oEntry: oEntry}); _%>
+						<%_ }); _%>
+							<th scope="col">Total</th>
+							<th scope="col">Score (%)</th>
+							<th scope="col">MAL Score</th>
+						</tr>
 					</thead>
 					<tbody>
-					<% aEntries.forEach((oEntry) => { %>
+					<%_ aEntries.forEach((oEntry) => { _%>
 						<tr>
-							<%- include('templates/rowHeader', {oEntry: oEntry}); %>
-							<% aEntries.forEach((oEntryToCompareWith) => { %>
-								<td>
-									<% if (oEntryToCompareWith.position <= oEntry.position) { %>
-										<input type="checkbox" id="<%= oEntry.mal_id %>gt<%= oEntryToCompareWith.mal_id %>"
-											   class="form-check-input position-static m-0" disabled />
-									<% } else { %>
-										<input type="checkbox" id="<%= oEntry.mal_id %>gt<%= oEntryToCompareWith.mal_id %>"
-											   class="form-check-input position-static m-0" checked />
-									<% } %>
-								</td>
-							<% }); %>
-							<td><input type="number" id="<%= oEntry.mal_id %>total" class="form-control-plaintext form-control-sm" readonly /></td>
-							<td><input type="number" id="<%= oEntry.mal_id %>score"  class="form-control-plaintext form-control-sm" readonly /></td>
-							<td><input type="number" id="<%= oEntry.mal_id %>integer_score" class="form-control-plaintext form-control-sm" maxlength="2" readonly /></td>
+							<%- include('templates/thAnimanga', {sScope:'row', oEntry: oEntry}); _%>
+						<%_ aEntries.forEach((oEntryToCompareWith) => { _%>
+							<td>
+							<%_ if (oEntryToCompareWith.position <= oEntry.position) { _%>
+								<input type="checkbox" id="<%= oEntry.mal_id %>gt<%= oEntryToCompareWith.mal_id _%>"
+									   class="form-check-input position-static m-0"
+									   disabled />
+							<%_ } else { _%>
+								<input type="checkbox" id="<%= oEntry.mal_id %>gt<%= oEntryToCompareWith.mal_id _%>"
+									   class="form-check-input position-static m-0"
+									   checked />
+							<%_ } _%>
+							</td>
+						<%_ }); _%>
+							<td>
+								<input type="number" id="<%= oEntry.mal_id %>_total"
+									   class="form-control-plaintext form-control-sm"
+									   readonly />
+							</td>
+							<td>
+								<input type="number" id="<%= oEntry.mal_id %>_score"
+									   class="form-control-plaintext form-control-sm"
+									   readonly />
+							</td>
+							<td>
+								<input type="number" id="<%= oEntry.mal_id %>_mal_score"
+									   class="form-control-plaintext form-control-sm"
+									   readonly />
+							</td>
 						</tr>
-					<% }); %>
+					<%_ }); _%>
 					</tbody>
 				</table>
 			</form>
+			<%_ } _%>
 		</main>
 	</body>
 </html>
